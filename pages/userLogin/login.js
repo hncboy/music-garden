@@ -46,22 +46,25 @@ Page({
         header: {
           'content-type': 'application/json' // 默认值
         },
-        success: function(result) {
-          console.log(result.data);
+        success: function(res) {
+          console.log(res.data);
           wx.hideLoading();
-          if (result.data.status == 200) {
+          if (res.data.status == 200) {
             // 登录成功跳转 
             wx.showToast({
               title: '登录成功',
               icon: 'success',
               duration: 2000
             });
-            app.userInfo = result.data.data;
-            //TODO 跳转页面
-          } else if (result.data.status == 500) {
+            app.userInfo = res.data.data;
+            // 跳转页面
+            wx.navigateTo({
+              url: '../mine/mine'
+            })
+          } else if (res.data.status == 500) {
             // 失败弹出框
             wx.showToast({
-              title: result.data.msg,
+              title: res.data.msg,
               icon: 'none',
               duration: 3000
             })

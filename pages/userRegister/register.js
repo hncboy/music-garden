@@ -30,20 +30,20 @@ Page({
         header: {
           'content-type': 'application/json' //默认值
         },
-        success: function(result) {
-          console.log(result.data);
+        success: function(res) {
+          console.log(res.data);
           wx.hideLoading();
-          var status = result.data.status;
+          var status = res.data.status;
           if (status == 200) {
             wx.showToast({
                 title: '用户注册成功',
                 icon: 'none',
                 duration: 3000
               }),
-              app.userInfo = result.data.data;
+              app.userInfo = res.data.data;
           } else if (status == 500) {
             wx.showToast({
-              title: result.data.msg,
+              title: res.data.msg,
               icon: 'none',
               duration: 3000
             })
