@@ -1,0 +1,14 @@
+{
+  "pages": [
+    "pages/userLogin/login",
+    "pages/userRegister/register",
+    "pages/index/index"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#fff",
+    "navigationBarTitleText": "音苑",
+    "navigationBarTextStyle": "black"
+  },
+  "debug": true
+}
