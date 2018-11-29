@@ -33,7 +33,8 @@ Page({
             faceUrl: faceUrl,
             fansCounts: userInfo.fansCounts,
             followCounts: userInfo.followCounts,
-            receiveLikeCounts: userInfo.receiveLikeCounts
+            receiveLikeCounts: userInfo.receiveLikeCounts,
+            nickname: userInfo.nickname
           })
         }
       }
@@ -83,7 +84,7 @@ Page({
         // tempFilePath可以作为img标签的src属性显示图片
         const tempFilePaths = res.tempFilePaths;
         wx.showLoading({
-          title: '上传中'
+          title: '上传中...'
         })
         var serverUrl = app.serverUrl;
         //上传头像
@@ -114,6 +115,44 @@ Page({
             }
           }
         })
+      }
+    })
+  },
+
+  //上传作品
+  uploadVideo: function() {
+    var me = this;
+    wx.chooseVideo({
+      sourceType: ['album'],
+      success(res) {
+        var duration = res.duration;
+        var tmpHeight = res.height;
+        var tmpWidth = res.width;
+        var tmpVideoUrl = res.tempFilePath;
+        var tmpCoverUrl = res.thumbTempFilePath;
+        
+        if (duration > 11) {
+          wx.showToast({
+            title: '视频长度不能超过10秒',
+            icon: 'none',
+            duration: 2500
+          })
+        } else if (duration < 1) {
+          wx.showToast({
+            title: '视频长度不能小于1秒',
+            icon: 'none',
+            duration: 2500
+          })
+        } else {
+          //打开选择bgm的页面
+          wx.navigateTo({
+            url: '../chooseBgm/chooseBgm?duration=' + duration +
+              "&tmpHeight=" + tmpHeight +
+              "&tmpWidth=" + tmpWidth +
+              "&tmpVideoUrl=" + tmpVideoUrl +
+              "&tmpCoverUrl=" + tmpCoverUrl
+          })
+        }
       }
     })
   }
