@@ -1,5 +1,4 @@
-<view style=''></view>
-<video id='myVideo' src="http://localhost:8081/1811277SX2C6DGC0/video/6c09af96-3a4a-4564-832e-a34b62127ce4.mp4" muted="{{false}}" controls="{{false}}" autoplay="{{true}}" loop="{{true}}" enable-progress-gesture="{{false}}" style='width:100%;height:100%' objectFit='{{cover}}'>
+<video id='myVideo' src="{{src}}" muted="{{false}}" controls="{{false}}" autoplay="{{true}}" loop="{{true}}" enable-progress-gesture="{{false}}" style='width:100%;height:100%' objectFit='{{cover}}'>
 
   <cover-view class='container'>
     <!-- 上传视频 -->

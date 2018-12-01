@@ -1,26 +1,45 @@
+var videoUtil = require('../../utils/videoUtil.js');
+
 const app = getApp()
 
 Page({
   data: {
     faceUrl: "../resource/images/noneface.png",
+    isMe: true,
+    isFollow: false,
+    publisherId: ''
   },
 
   //初始化用户信息
-  onLoad: function() {
+  onLoad: function(params) {
     var me = this;
+    var publisherId = params.publisherId;
     //var user = app.userInfo;
     //fixme 修改原有的全局对象为本地缓存
     var user = app.getGlobalUserInfo();
+    var userId = user.id;
     var serverUrl = app.serverUrl;
+
+    if (publisherId != null && publisherId != '' && publisherId != undefined) {
+      //查询发布者信息
+      userId = publisherId;
+      me.setData({
+        isMe: false,
+        publisherId: publisherId
+      })
+    }
+
     wx.showLoading({
       title: '请稍等...'
     })
     //调用后端
     wx.request({
-      url: serverUrl + '/user/query?userId=' + user.id,
+      url: serverUrl + '/user/query?userId=' + userId + '&fanId=' + user.id,
       method: "POST",
       header: {
-        'content-type': 'application/json' // 默认值
+        'content-type': 'application/json', // 默认值
+        'headerUserId': user.id,
+        'headerUserToken': user.userToken
       },
       success: function(res) {
         wx.hideLoading();
@@ -36,7 +55,61 @@ Page({
             fansCounts: userInfo.fansCounts,
             followCounts: userInfo.followCounts,
             receiveLikeCounts: userInfo.receiveLikeCounts,
-            nickname: userInfo.nickname
+            nickname: userInfo.nickname,
+            isFollow: userInfo.follow
+          })
+        } else if (res.data.status == 502) {
+          wx.showToast({
+            title: res.data.msg,
+            duration: 3000,
+            icon: 'none',
+            success: function() {
+              wx.redirectTo({
+                url: '../userLogin/login'
+              })
+            }
+          })
+        }
+      }
+    })
+  },
+
+  //关注或取消关注
+  followMe: function(e) {
+    var me = this;
+    var user = app.getGlobalUserInfo();
+    var userId = user.id;
+    var publisherId = me.data.publisherId;
+
+    var followType = e.currentTarget.dataset.followtype;
+    //1：关注 0：取消关注
+    var url = '';
+    if (followType == '1') {
+      url = '/user/beyourfans?userId=' + publisherId + '&fanId=' + userId;
+    } else if (followType == '0') {
+      url = '/user/dontbeyourfans?userId=' + publisherId + '&fanId=' + userId;
+    }
+
+    wx.showLoading()
+    wx.request({
+      url: app.serverUrl + url,
+      method: 'POST',
+      header: {
+        'content-type': 'application/json', // 默认值
+        'headerUserId': user.id,
+        'headerUserToken': user.userToken
+      },
+      success: function() {
+        wx.hideLoading();
+        if (followType == '1') {
+          me.setData({
+            isFollow: true,
+            fansCounts: ++me.data.fansCounts
+          })
+        } else if (followType == '0') {
+          me.setData({
+            isFollow: false,
+            fansCounts: --me.data.fansCounts
           })
         }
       }
@@ -101,7 +174,9 @@ Page({
           filePath: tempFilePaths[0],
           name: 'file',
           header: {
-            'content-type': 'application/json' // 默认值
+            'content-type': 'application/json', // 默认值
+            'headerUserId': userInfo.id,
+            'headerUserToken': userInfo.userToken
           },
           success(res) {
             const data = JSON.parse(res.data);
@@ -129,6 +204,7 @@ Page({
 
   //上传作品
   uploadVideo: function() {
+    //videoUtil.uploadVideo();
     var me = this;
     wx.chooseVideo({
       sourceType: ['album'],

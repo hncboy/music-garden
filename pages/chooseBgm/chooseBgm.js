@@ -22,7 +22,9 @@ Page({
       url: serverUrl + '/bgm/list',
       method: "POST",
       header: {
-        'content-type': 'application/json' // 默认值
+        'content-type': 'application/json', // 默认值
+        'headerUserId': user.id,
+        'headerUserToken': user.userToken
       },
       success: function(res) {
         wx.hideLoading();
@@ -32,6 +34,17 @@ Page({
           me.setData({
             bgmList: bgmList,
             serverUrl: serverUrl
+          })
+        } else if (res.data.status == 502) {
+          wx.showToast({
+            title: res.data.msg,
+            duration: 3000,
+            icon: 'none',
+            success: function() {
+              wx.redirectTo({
+                url: '../userLogin/login'
+              })
+            }
           })
         }
       }
