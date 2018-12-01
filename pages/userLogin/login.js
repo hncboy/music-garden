@@ -56,7 +56,9 @@ Page({
               icon: 'success',
               duration: 2000
             });
-            app.userInfo = res.data.data;
+            //app.userInfo = res.data.data;
+            //fixme 修改原有的全局对象为本地缓存
+            app.setGlobalUserInfo(res.data.data);
             // 跳转页面
             wx.navigateTo({
               url: '../mine/mine'

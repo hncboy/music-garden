@@ -53,11 +53,13 @@ Page({
       title: '上传中...'
     })
     var serverUrl = app.serverUrl;
+    //fixme 修改原有的全局对象为本地缓存
+    var userInfo = app.getGlobalUserInfo();
     //上传短视频
     wx.uploadFile({
       url: serverUrl + '/video/upload',
       formData: {
-        userId: app.userInfo.id,
+        userId: userInfo.id, //fixme 原来的 app.userInfo.id
         bgmId: bgmId,
         desc: desc,
         videoSeconds: duration,
