@@ -165,5 +165,23 @@ Page({
         }
       })
     }
+  },
+
+  //分享按钮
+  shareMe: function() {
+    wx.showActionSheet({
+      itemList: ['下载到本地', '举报用户', '分享到朋友圈'],
+      success: function(res) {
+        if (res.tapIndex == 0) {
+          //下载
+        } else if (res.tapIndex == 1) {
+            //举报
+        } else {
+          wx.showToast({
+            title: '官方暂未开发接口'
+          })
+        }
+      }
+    })
   }
 })
