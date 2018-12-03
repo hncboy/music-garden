@@ -62,7 +62,7 @@ Page({
             // 跳转页面
             var redirectUrl = me.redirectUrl;
             if (redirectUrl != null && redirectUrl != undefined && redirectUrl != '') {
-              wx.navigateTo({
+              wx.redirectTo({
                 url: redirectUrl
               })
             } else {
