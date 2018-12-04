@@ -8,8 +8,14 @@ Page({
     videoId: '',
     src: '',
     videoInfo: {},
-    serverUrl: '',
-    userLikeVideo: false
+
+    userLikeVideo: false,
+
+    commentsPage: 1,
+    commentsTotalPage: 1,
+    commentsList: [],
+
+    placeholder: '说点什么...'
   },
 
   videoCtx: {},
@@ -55,6 +61,7 @@ Page({
         })
       }
     })
+    this.getCommentsList(1);
   },
 
   onShow: function() {
@@ -92,6 +99,7 @@ Page({
     }
   },
 
+  //上传
   upload: function() {
     var me = this;
     var user = app.getGlobalUserInfo();
@@ -229,4 +237,105 @@ Page({
       path: "pages/videoinfo/videoinfo?videoInfo=" + JSON.stringify(videoInfo)
     }
   },
+
+  //获取焦点
+  leaveComment: function() {
+    this.setData({
+      commentFocus: true
+    })
+  },
+
+  //获取回复的焦点
+  replyFocus: function(e) {
+    var fatherCommentId = e.currentTarget.dataset.fathercommentid;
+    var toUserId = e.currentTarget.dataset.touserid;
+    var toNickname = e.currentTarget.dataset.tonickname;
+
+    this.setData({
+      placeholder: '回复 ' + toNickname,
+      replyFatherCommentId: fatherCommentId,
+      replyToUserId: toUserId,
+      commentFocus: true
+    })
+  },
+
+  //提交评论
+  saveComment: function(e) {
+    var me = this;
+    var content = e.detail.value;
+    var user = app.getGlobalUserInfo();
+
+    //获取评论回复的fatherCommentId和toUserId
+    var fatherCommentId = e.currentTarget.dataset.replyfathercommentid;
+    var toUserId = e.currentTarget.dataset.touserId;
+
+    var videoInfo = JSON.stringify(me.data.videoInfo);
+    var realUrl = '../videoinfo/videoinfo#videoInfo@' + videoInfo;
+
+    if (user == null || user == undefined || user == '') {
+      wx.navigateTo({
+        url: '../userLogin/login?redirectUrl=' + realUrl,
+      })
+    } else {
+      wx.request({
+        url: app.serverUrl + '/video/saveComment?fatherCommentId=' + fatherCommentId +
+          '&toUserId=' + toUserId,
+        method: 'POST',
+        header: {
+          'content-type': 'application/json', // 默认值
+          'headerUserId': user.id,
+          'headerUserToken': user.userToken
+        },
+        data: {
+          fromUserId: user.id,
+          videoId: me.data.videoInfo.id,
+          comment: content
+        },
+        success: function(res) {
+          console.log(res.data);
+          wx.hideLoading();
+
+          me.setData({
+            contentValue: '',
+            commentsList: []
+          })
+
+          me.getCommentsList(1);
+        }
+      })
+    }
+  },
+
+  //分页获取所评论
+  getCommentsList: function(page) {
+    var me = this;
+    var videoId = me.data.videoInfo.id;
+
+    wx.request({
+      url: app.serverUrl + '/video/getVideoComments?videoId=' + videoId + '&page=' + page + '&pageSize=5',
+      method: 'POST',
+      success: function(res) {
+        var commentsList = res.data.data.rows;
+        var newCommentsList = me.data.commentsList;
+
+        me.setData({
+          commentsList: newCommentsList.concat(commentsList),
+          commentsPage: page,
+          commentsTotalPage: res.data.data.total,
+        })
+      }
+    })
+  },
+
+  //下拉加载
+  onReachBottom: function() {
+    var me = this;
+    var currentPage = me.data.commentsPage;
+    var totalPage = me.data.commentsTotalPage;
+    if (currentPage == totalPage) {
+      return;
+    }
+    var page = currentPage + 1;
+    me.getCommentsList(page);
+  }
 })
